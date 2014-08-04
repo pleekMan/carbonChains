@@ -27,11 +27,11 @@ void Molecule::update(){
 void Molecule::render(){
     
     // DRAW LINES
-    glLineWidth(3);
+    //glLineWidth(3);
     for (int i = 1; i < atoms.size(); i++) {
         if (visibleEdges[i - 1]) {
             ofLine(atoms[i], atoms[i-1]);
-            ofCircle(atoms[i], 3);
+            ofCircle(atoms[i], 2);
             
             if (doubleBonds[i-1]) {
                 ofLine(atomsDoubleBonds[i], atomsDoubleBonds[i-1]);
@@ -42,7 +42,7 @@ void Molecule::render(){
     // DRAW LAST LINE
     if (visibleEdges[atoms.size() - 1]) {
         ofLine(atoms[atoms.size() - 1], atoms[0]);
-        ofCircle(atoms[atoms.size() - 1], 3);
+        ofCircle(atoms[atoms.size() - 1], 2);
         
         if (doubleBonds[atomsDoubleBonds.size() - 1]) {
             ofLine(atomsDoubleBonds[atomsDoubleBonds.size() - 1], atomsDoubleBonds[0]);

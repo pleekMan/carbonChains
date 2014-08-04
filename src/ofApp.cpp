@@ -32,7 +32,7 @@ void ofApp::update(){
 void ofApp::draw(){
     
     // DRAW SOME BACKGROUND - BEGIN
-    
+    ofBackground(0);
     /*
     ofPushStyle();
     ofSetColor(100);
@@ -40,28 +40,27 @@ void ofApp::draw(){
         ofLine(x, 0, x, ofGetWindowHeight());
     }
     ofPopStyle();
-    
+    */
     // DRAW SOME BACKGROUND - END
     
-     */
     //sceneFbo.begin();
     //ofClear(0,0);
     //ofBackground(0,0,180);
     
-    depthOfField.begin();
+    //depthOfField.begin();
     
     //  backg.draw(0, 0, -1000);
 
     chainManager.render();
     
-    depthOfField.end();
+    //depthOfField.end();
     
-    depthOfField.getFbo().draw(0, 0);
+    //depthOfField.getFbo().draw(0, 0);
     
     ofDrawBitmapString("Focal Plane Distance: " + ofToString(depthOfField.getFocalDistance()), 20,20);
     ofDrawBitmapString("Focal Range: " + ofToString(depthOfField.getFocalRange()), 20,40);
     
-    ofDrawBitmapString("X: " + ofToString(ofGetMouseX()) + " // Y: " + ofToString(ofGetMouseY()), 20,40);
+    ofDrawBitmapString("X: " + ofToString(ofGetMouseX()) + " // Y: " + ofToString(ofGetMouseY()), 20,80);
     
     //sceneFbo.end();
     
@@ -117,6 +116,7 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
+    chainManager.onMousePressed(x, y);
 
 }
 

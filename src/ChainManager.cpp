@@ -28,7 +28,15 @@ void ChainManager::setup(){
     ofEnableAntiAliasing();
     
     backg.loadImage("background.png");
-
+    
+    // RESET CHAIN EXPOSE
+    for (int i=0; i < chains.size(); i++) {
+        chains[i].exposed = false;
+    }
+    for (int i=0; i < gridChains.size(); i++) {
+        gridChains[i].exposed = false;
+    }
+    
     
     atStage = FIRST_IDLE;
     
@@ -56,10 +64,10 @@ void ChainManager::update(){
     }
     
     /*
-    if(atStage == SECOND_IDLE && !chains[0].isAnimating()){
-        triggerOutro();
-    }
-    */
+     if(atStage == SECOND_IDLE && !chains[0].isAnimating()){
+     triggerOutro();
+     }
+     */
     
 }
 
@@ -88,7 +96,7 @@ void ChainManager::render(){
     
     camera.end();
     
-
+    
     
 }
 
@@ -96,9 +104,12 @@ void ChainManager::triggerIntro(){
     
     cout << "Triggering INTRO" << endl;
     
+    
     // CHAINS
     
     for (int i=0; i < chains.size(); i++) {
+        
+        chains[i].exposed = false;
         
         chains[i].setAnimation(TANH, 2.0, PLAY_ONCE);
         
@@ -117,12 +128,14 @@ void ChainManager::triggerIntro(){
         //chains[i].setColorAnimationDuration(1.0);
         
         chains[i].startAnimation();
-
+        
     }
     
     // GRID CHAINS
     
     for (int i=0; i < gridChains.size(); i++) {
+        
+        gridChains[i].exposed = false;
         
         gridChains[i].setAnimation(TANH, ofRandom(2,5), LOOP_BACK_AND_FORTH);
         
@@ -137,8 +150,8 @@ void ChainManager::triggerIntro(){
     }
     
     atStage = FIRST_IDLE;
-
-
+    
+    
 }
 
 void ChainManager::triggerExplosion(){
@@ -174,13 +187,13 @@ void ChainManager::triggerExplosion(){
     
     
     // GRID CHAINS
-    
+    /*
     cout << "BEFORE SETTING ANIMS: " << endl;
     cout << "C: " << ofToString(gridChains[0].colorAnimation.getCurrentColor()) << " // At: "  << gridChains[0].posAnimation.getPercentDone() << endl;
     cout << "I: " << ofToString(gridChains[0].initialColor) << endl;
     cout << "F: " << ofToString(gridChains[0].finalColor) << endl;
     cout << "----" << endl;
-    
+    */
     
     for (int i=0; i < gridChains.size(); i++) {
         
@@ -202,13 +215,13 @@ void ChainManager::triggerExplosion(){
         
     }
     
-    
+    /*
     cout << "AFTER SETTING ANIMS: " << endl;
     cout << "C: " << ofToString(gridChains[0].colorAnimation.getCurrentColor()) << endl;
     cout << "I: " << ofToString(gridChains[0].initialColor) << endl;
     cout << "F: " << ofToString(gridChains[0].finalColor) << endl;
     cout << "----" << endl;
-    
+    */
     
     atStage = EXPLOSION;
     
@@ -255,7 +268,7 @@ void ChainManager::triggerOutro(){
     
     
     cout << "C: " << ofToString(chains[0].rotAnimation.getCurrentValue()) << endl;
-
+    
     // CHAINS
     for (int i=0; i < chains.size(); i++) {
         
@@ -274,7 +287,7 @@ void ChainManager::triggerOutro(){
     }
     
     cout << "I: " << ofToString(chains[0].initialRotation) << endl;
-
+    
     
     /*
      // GRID CHAINS
@@ -285,6 +298,85 @@ void ChainManager::triggerOutro(){
     
     atStage = OUTRO;
     
+}
+
+void ChainManager::pickChain(){
+    
+    
+    //ofVec3f screenPos = ChainManager.ca
+    //float distance = picker.distance(posAnimation.getCurrentPosition());
+    
+    // DETECT PICK, AND TRIGGER EXPOSE CHAIN
+    ofVec2f picker(ofGetMouseX(), ofGetMouseY());
+    
+    for (int i=0; i < gridChains.size(); i++) {
+        
+        ofVec3f screenPos = camera.worldToScreen(gridChains[i].posAnimation.getCurrentPosition());
+        float distance = picker.distance(screenPos);
+        
+        if (distance < gridChains[0].radius * 1.2) {
+            
+            detachGridChain(i);
+            
+            ofVec3f passPosition = ofVec3f(gridChains[i].posAnimation.getCurrentPosition());
+            passPosition.x -= gridChains[i].hRadius * 2;
+            
+            // GET A RANDOM CHAIN AND EXPOSE IT. TRY 50 TIMES.
+            for (int j=0; j < chains.size(); j++) {
+                if (chains[j].exposed == false) {
+                    exposeChain(j, passPosition);
+                    chains[j].exposed = true;
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    
+}
+
+void ChainManager::exposeChain(int chainNum, ofVec3f atPosition){
+    
+    //int chainNum = (int)(ofRandom(chains.size()));
+    
+    // GET THE REFERENCE (OF THE VECTOR (IMPLICIT) POINTER), INSTEAD OF CREATING A NEW OBJECT BASED ON
+    Chain &actualChain = chains[chainNum];
+    
+    actualChain.setAnimation(EASE_OUT, 1, PLAY_ONCE);
+    
+    actualChain.setInitialPosition(atPosition);
+    actualChain.setFinalPosition(ofVec3f(atPosition.x, atPosition.y, atPosition.z + 20));
+    
+    /*
+     chains[i].setInitialRotation(1);
+     chains[i].setFinalRotation(360 * ((int)ofRandom(1,4)));
+     chains[i].setRotationAnimationDuration(2.8);
+     */
+    
+    ofColor chainFinalColor = ofColor::white;
+    actualChain.setInitialColor(actualChain.colorAnimation.getCurrentColor());
+    actualChain.setFinalColor(chainFinalColor);
+    actualChain.setColorAnimationDuration(1.0);
+    
+    actualChain.startAnimation();
+}
+
+void ChainManager::detachGridChain(int chainNum){
+    
+    ofVec3f gridPos = ofVec3f(gridChains[chainNum].posAnimation.getCurrentPosition());
+    
+    gridChains[chainNum].setAnimation(EASE_OUT, 0.5, PLAY_ONCE);
+    gridChains[chainNum].setInitialPosition(gridPos);
+    gridChains[chainNum].setFinalPosition(ofVec3f(gridPos.x, gridPos.y, gridPos.z + 200));
+    gridChains[chainNum].setInitialColor(ofColor::white);
+    gridChains[chainNum].setFinalColor(ofColor(255,0));
+    
+    gridChains[chainNum].startAnimation();
+
+}
+
+void ChainManager::onMousePressed(int _x, int _y){
+    pickChain();
 }
 
 void ChainManager::createChains(){
@@ -320,7 +412,7 @@ void ChainManager::createChains(){
             float chainX = ofGetWindowWidth() * 0.5;
             float chainY = ofGetWindowHeight() * 0.5;
             
-            cout << "X:Y -- " << ofToString(chainX) << " : " << ofToString(chainY) << endl;
+            //cout << "X:Y -- " << ofToString(chainX) << " : " << ofToString(chainY) << endl;
             
             newChain.setInitialPosition(ofVec3f(chainX,chainY,-20));
             newChain.setFinalPosition(ofVec3f(chainX,chainY,-20));

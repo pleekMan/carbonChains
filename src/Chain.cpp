@@ -37,6 +37,8 @@ void Chain::setup(float _moleculeRadius){
     setInitialColor(ofColor(255,0));
     setFinalColor(initialColor);
     
+    exposed = false;
+    
 }
 
 void Chain::createChain(int moleculeCount){
@@ -124,8 +126,8 @@ void Chain::render(){
 
 void Chain::setInitialPosition(ofVec3f pos){
     initialPosition = pos;
+    posAnimation.setPosition(initialPosition);
     posAnimation.reset();
-    posAnimation.setPosition(pos);
     //position = initialPosition;
 }
 

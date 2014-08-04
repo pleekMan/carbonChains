@@ -67,6 +67,8 @@ public:
     void setAtLoopingMotion(bool looping);
     bool isAnimating();
     
+    void pick(float _x, float y);
+    
     
     vector<Molecule> molecules;
     
@@ -78,7 +80,7 @@ public:
     float getHorizontalSeparation();
     float getVerticalSeparation();
     ofColor chainColor;
-    bool atLoopingMotion;
+    bool exposed;
     
     ofTrueTypeFont letra;
 

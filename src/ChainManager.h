@@ -34,6 +34,7 @@ public:
     void setup();
     void update();
     void render();
+    void onMousePressed(int _x, int _y);
     
     void createChains();
     
@@ -54,6 +55,10 @@ public:
     void triggerExplosion();
     void triggerFloating();
     void triggerOutro();
+    
+    void pickChain();
+    void exposeChain(int chainNum, ofVec3f atPosition);
+    void detachGridChain(int chainNum);
     
 private:
     
