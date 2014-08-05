@@ -97,17 +97,9 @@ void Molecule::buildMolecule(){
 
 void Molecule::setVisibleEdges(string edges){
     
-    char separatedString[edges.size()];
-    strncpy(separatedString, edges.c_str(), sizeof(separatedString));
-    
     for (int i=0; i < edges.size() ; i++) {
-        if (separatedString[i] == '1') {
-            visibleEdges[i] = true;
-        } else {
-            visibleEdges[i] = false;
-        }
+        visibleEdges[i] = edges.at(i) == '1' ? true : false;
     }
-    
     //PRINT OUT
     /*
     cout << "- EDGES ---" << endl;
@@ -121,15 +113,8 @@ void Molecule::setVisibleEdges(string edges){
 
 void Molecule::setDoubleBonds(string dBonds){
     
-    char separatedString[dBonds.size()];
-    strncpy(separatedString, dBonds.c_str(), sizeof(separatedString));
-    
     for (int i=0; i < dBonds.size() ; i++) {
-        if (separatedString[i] == '1') {
-            doubleBonds[i] = true;
-        } else {
-            doubleBonds[i] = false;
-        }
+        doubleBonds[i] = dBonds.at(i) == '1' ? true : false;
     }
     
     // PRINT OUT

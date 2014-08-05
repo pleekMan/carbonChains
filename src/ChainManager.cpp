@@ -27,7 +27,15 @@ void ChainManager::setup(){
     
     ofEnableAntiAliasing();
     
-    backg.loadImage("background.png");
+    backg.loadImage("back_0.png");
+    backg2.loadImage("back_1.png");
+    
+    backgroundColor.setDuration(5.0);
+    backgroundColor.setPercentDone(0.0);
+    backgroundColor.setCurve(EASE_IN_EASE_OUT);
+    backgroundColor.setRepeatType(LOOP_BACK_AND_FORTH);
+    backgroundColor.setColor(ofColor(255,0));
+    backgroundColor.animateTo(ofColor(255,255));
     
     // RESET CHAIN EXPOSE
     for (int i=0; i < chains.size(); i++) {
@@ -37,14 +45,35 @@ void ChainManager::setup(){
         gridChains[i].exposed = false;
     }
     
+    explosionTimer.setCurve(LINEAR);
+    explosionTimer.setDuration(20.0);
+    explosionTimer.setPercentDone(0.0);
+    //explosionTimer.animateTo(1.0);
+    
+    // INIT FLOATING PARTICLES
+    for (int i=0; i < 200; i++) {
+        Particle newParticle = Particle();
+        newParticle.setup();
+        newParticle.enableBoundingBox(true);
+        newParticle.setVelocity(ofVec3f(0,0,10));
+        particles.push_back(newParticle);
+    }
+    
+    
     
     atStage = FIRST_IDLE;
+    
     
 }
 
 void ChainManager::update(){
     
-    cameraMotion.update(1.0/ofGetFrameRate());
+    float dt = 1.0/ofGetFrameRate();
+    
+    cameraMotion.update(dt);
+    explosionTimer.update(dt);
+    
+    backgroundColor.update(dt);
     
     //cout << ofToString(gridChains[0].colorAnimation.getCurrentColor()) << endl;
     
@@ -58,7 +87,12 @@ void ChainManager::update(){
         }
     }
     
-    //cout << "Animating?: " << ofToString(chains[0].isAnimating()) << endl;
+    // TRIGGER EXPLOSION AFTER 20 SECONDS OF FIRST IDLING
+    if (atStage == FIRST_IDLE && explosionTimer.getCurrentValue() >= 1.0) {
+        triggerExplosion();
+    }
+    
+    // TRIGGER FLOATING AFTER EXPLOSION FINISHED
     if(atStage == EXPLOSION && !chains[0].isAnimating()){
         triggerFloating();
     }
@@ -69,19 +103,31 @@ void ChainManager::update(){
      }
      */
     
+    for (int i=0; i < particles.size(); i++) {
+        particles[i].update();
+    }
+    
 }
 
 void ChainManager::render(){
     
-    ofEnableAntiAliasing();
+    //ofEnableAntiAliasing();
     camera.setPosition(cameraMotion.getCurrentPosition());
     //camera.setPosition(ofVec3f(ofGetWindowWidth() * 0.5, ofGetWindowHeight() * 0.5, ofGetMouseX()));
     
-    //ofBackground(255, 0, 0);
+    
+    // DRAW BACKGROUND
+    ofPushStyle();
+    glDisable(GL_DEPTH_TEST);
+    //ofSetRectMode(OF_RECTMODE_CENTER);
+    backg.draw(0,0, ofGetWindowWidth(), ofGetWindowHeight());
+    ofSetColor(backgroundColor.getCurrentColor());
+    backg2.draw(0,0, ofGetWindowWidth(), ofGetWindowHeight());
+    glEnable(GL_DEPTH_TEST);
+    ofPopStyle();
+    
     
     camera.begin();
-    
-    //backg.draw(0, 0, -500);
     
     if (atStage == FIRST_IDLE || atStage == EXPLOSION) {
         for (int i=0; i < gridChains.size(); i++) {
@@ -94,6 +140,10 @@ void ChainManager::render(){
         chains[i].render();
     }
     
+    for (int i=0; i < particles.size(); i++) {
+        particles[i].render();
+    }
+    
     camera.end();
     
     
@@ -104,6 +154,11 @@ void ChainManager::triggerIntro(){
     
     cout << "Triggering INTRO" << endl;
     
+    //explosionTimer.setCurve(LINEAR);
+    //explosionTimer.setDuration(20.0);
+    explosionTimer.setPercentDone(0.0);
+    explosionTimer.animateTo(1.0);
+
     
     // CHAINS
     
@@ -142,13 +197,17 @@ void ChainManager::triggerIntro(){
         gridChains[i].setInitialPosition(ofVec3f(gridChains[i].initialPosition.x, gridChains[i].initialPosition.y, 0));
         gridChains[i].setFinalPosition(ofVec3f(gridChains[i].initialPosition.x, gridChains[i].initialPosition.y, ofRandom(20.0)));
         
-        gridChains[i].setInitialColor(ofColor(0,0));
-        gridChains[i].setFinalColor(ofColor(25, 60, ofRandom(70,100),255));
+        gridChains[i].setInitialColor(ofColor(255,0));
+        gridChains[i].setFinalColor(ofColor(25, 80, ofRandom(70,150),255));
         
         gridChains[i].startAnimation();
         
     }
     
+    for (int i=0; i<particles.size(); i++) {
+        particles[i].enableBoundingBox(true);
+    }
+
     atStage = FIRST_IDLE;
     
     
@@ -223,6 +282,11 @@ void ChainManager::triggerExplosion(){
     cout << "----" << endl;
     */
     
+    for (int i=0; i < particles.size(); i++) {
+        particles[i].setVelocity(ofVec3f(0,0,10));
+    }
+
+    
     atStage = EXPLOSION;
     
     //cameraMotion.animateTo(ofVec3f(ofGetWindowWidth() * 0.5, ofGetWindowHeight() * 0.5,-500));
@@ -296,6 +360,11 @@ void ChainManager::triggerOutro(){
      }
      */
     
+    for (int i=0; i < particles.size(); i++) {
+        particles[i].setVelocity(ofVec3f(0,0,-10));
+        particles[i].enableBoundingBox(false);
+    }
+    
     atStage = OUTRO;
     
 }
@@ -303,10 +372,7 @@ void ChainManager::triggerOutro(){
 void ChainManager::pickChain(){
     
     
-    //ofVec3f screenPos = ChainManager.ca
-    //float distance = picker.distance(posAnimation.getCurrentPosition());
-    
-    // DETECT PICK, AND TRIGGER EXPOSE CHAIN
+    // DETECT, PICK, AND TRIGGER EXPOSE CHAIN
     ofVec2f picker(ofGetMouseX(), ofGetMouseY());
     
     for (int i=0; i < gridChains.size(); i++) {
@@ -321,7 +387,7 @@ void ChainManager::pickChain(){
             ofVec3f passPosition = ofVec3f(gridChains[i].posAnimation.getCurrentPosition());
             passPosition.x -= gridChains[i].hRadius * 2;
             
-            // GET A RANDOM CHAIN AND EXPOSE IT. TRY 50 TIMES.
+            // GET A CHAIN AND EXPOSE IT
             for (int j=0; j < chains.size(); j++) {
                 if (chains[j].exposed == false) {
                     exposeChain(j, passPosition);
@@ -386,7 +452,7 @@ void ChainManager::createChains(){
     int chainCount = chainsXML.getNumChildren();
     
     // MULTIPLY/REPEAT TO J CHAINS
-    for (int j=0; j<1; j++) {
+    for (int j=0; j<5; j++) {
         
         // GET CHAINS (IGNORE FIRST CHAIN (TEMPLATE GRIDCHAIN))
         for (int i=1; i < chainCount; i++) {
@@ -397,18 +463,7 @@ void ChainManager::createChains(){
             Chain newChain;
             newChain.setup(moleculeRadius);
             newChain.setName(chainsXML.getAttribute("name"));
-            //newChain.setInitialColor(ofColor(0, 0));
-            //newChain.setFinalColor(ofColor(ofRandom(255),ofRandom(255),ofRandom(255), 255));
-            
-            //newChain.setInitialPosition(ofVec3f(ofRandom(ofGetWindowWidth()),ofRandom(ofGetWindowHeight()),0));
-            //newChain.setFinalPosition(ofVec3f(ofRandom(ofGetWindowWidth()),ofRandom(ofGetWindowHeight()),ofRandom(300,-300)));
-            
-            /*
-             float chainX = newChain.getHorizontalSeparation() * (int)(ofRandom(-3,3));
-             chainX += ofGetWindowWidth() * 0.5;
-             float chainY = newChain.getVerticalSeparation() * (int)(ofRandom(-3,3));
-             chainY += ofGetWindowHeight() * 0.5;
-             */
+
             float chainX = ofGetWindowWidth() * 0.5;
             float chainY = ofGetWindowHeight() * 0.5;
             
@@ -416,11 +471,6 @@ void ChainManager::createChains(){
             
             newChain.setInitialPosition(ofVec3f(chainX,chainY,-20));
             newChain.setFinalPosition(ofVec3f(chainX,chainY,-20));
-            
-            //newChain.setInitialRotation(0.01);
-            //newChain.setFinalRotation(TWO_PI);
-            //newChain.setAnimation(TANH, 2.0, PLAY_ONCE);
-            //newChain.startAnimation();
             
             
             // GET MOLECULES AND ADD TO CHAIN

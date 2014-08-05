@@ -18,6 +18,7 @@
 #include "Chain.h"
 //#include "Molecule.h"
 #include "ofxDOF.h"
+#include "Particle.h"
 
 enum sceneStage{
 	FIRST_IDLE = 0,
@@ -45,10 +46,14 @@ public:
     int gridChainCount;
     vector<Chain> gridChains;
     
+    vector<Particle> particles;
+    
     ofCamera camera;
     ofxAnimatableOfPoint cameraMotion;
     
     ofImage backg;
+    ofImage backg2;
+    ofxAnimatableOfColor backgroundColor;
     
     int atStage;
     void triggerIntro();
@@ -59,6 +64,8 @@ public:
     void pickChain();
     void exposeChain(int chainNum, ofVec3f atPosition);
     void detachGridChain(int chainNum);
+    
+    ofxAnimatableFloat explosionTimer;
     
 private:
     

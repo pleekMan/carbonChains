@@ -26,11 +26,11 @@
             ignoreCount = "12"
             continueAfterRunningActions = "No"
             filePath = "src/ChainManager.cpp"
-            timestampString = "428872215.858489"
+            timestampString = "428957021.08465"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "325"
-            endingLineNumber = "325"
+            startingLineNumber = "378"
+            endingLineNumber = "378"
             landmarkName = "ChainManager::pickChain()"
             landmarkType = "5">
             <Actions>

@@ -31,6 +31,8 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
+    ofSetWindowTitle(ofToString(ofGetFrameRate()));
+    
     // DRAW SOME BACKGROUND - BEGIN
     ofBackground(0);
     /*
