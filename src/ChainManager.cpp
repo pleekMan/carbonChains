@@ -10,8 +10,8 @@
 
 void ChainManager::setup(){
     
-    moleculeRadius = 20;
-    gridChainCount = 1500;
+    moleculeRadius = 30;
+    gridChainCount = 700;
     
     if(chainsXML.load("chainsFull.xml") ){
 		cout << "Chains data loaded!" << endl;
@@ -166,8 +166,6 @@ void ChainManager::triggerIntro(){
         
         chains[i].exposed = false;
         
-        chains[i].setAnimation(TANH, 2.0, PLAY_ONCE);
-        
         float chainX = ofGetWindowWidth() * 0.5;
         float chainY = ofGetWindowHeight() * 0.5;
         
@@ -182,6 +180,8 @@ void ChainManager::triggerIntro(){
         chains[i].setFinalColor(chains[i].initialColor);
         //chains[i].setColorAnimationDuration(1.0);
         
+        chains[i].setAnimation(TANH, 2.0, PLAY_ONCE);
+        
         chains[i].startAnimation();
         
     }
@@ -192,13 +192,14 @@ void ChainManager::triggerIntro(){
         
         gridChains[i].exposed = false;
         
-        gridChains[i].setAnimation(TANH, ofRandom(2,5), LOOP_BACK_AND_FORTH);
         
         gridChains[i].setInitialPosition(ofVec3f(gridChains[i].initialPosition.x, gridChains[i].initialPosition.y, 0));
         gridChains[i].setFinalPosition(ofVec3f(gridChains[i].initialPosition.x, gridChains[i].initialPosition.y, ofRandom(20.0)));
         
         gridChains[i].setInitialColor(ofColor(255,0));
         gridChains[i].setFinalColor(ofColor(25, 80, ofRandom(70,150),255));
+        
+        gridChains[i].setAnimation(TANH, ofRandom(2,5), LOOP_BACK_AND_FORTH);
         
         gridChains[i].startAnimation();
         
@@ -223,7 +224,6 @@ void ChainManager::triggerExplosion(){
     
     for (int i=0; i < chains.size(); i++) {
         
-        chains[i].setAnimation(EASE_OUT, ofRandom(minDuration,maxDuration), PLAY_ONCE);
         
         chains[i].setInitialPosition(chains[i].posAnimation.getCurrentPosition());
         chains[i].setFinalPosition(ofVec3f(ofRandom(ofGetWindowWidth()),ofRandom(ofGetWindowHeight()),ofRandom(300,-300)));
@@ -237,6 +237,9 @@ void ChainManager::triggerExplosion(){
         chains[i].setInitialColor(chains[i].colorAnimation.getCurrentColor());
         chains[i].setFinalColor(chainFinalColor);
         chains[i].setColorAnimationDuration(1.0);
+        
+        chains[i].setAnimation(EASE_OUT, ofRandom(minDuration,maxDuration), PLAY_ONCE);
+
         
         chains[i].startAnimation();
     }
@@ -256,7 +259,6 @@ void ChainManager::triggerExplosion(){
     
     for (int i=0; i < gridChains.size(); i++) {
         
-        gridChains[i].setAnimation(QUADRATIC_BEZIER_PARAM, chains[0].posAnimation.getDuration(), PLAY_ONCE);
         gridChains[i].setInitialPosition(gridChains[i].posAnimation.getCurrentPosition());
         
         // CALCULATE DISTANCE TO CREATE BUBBLE EXPLOSION EFFECT AND SET IT TO ITS FINAL POSITION
@@ -269,6 +271,8 @@ void ChainManager::triggerExplosion(){
         gridChains[i].setFinalColor(ofColor(255,0));
         gridChains[i].setColorAnimationDuration(2.0);
         gridChains[i].colorAnimation.animateToAlpha(0.0);
+        
+        gridChains[i].setAnimation(QUADRATIC_BEZIER_PARAM, chains[0].posAnimation.getDuration(), PLAY_ONCE);
         
         gridChains[i].startAnimation();
         
@@ -302,7 +306,6 @@ void ChainManager::triggerFloating(){
         
         chains[i].setInitialPosition(chains[i].posAnimation.getCurrentPosition());
         chains[i].setFinalPosition(ofVec3f(currentX, currentY,ofRandom(50,50)));
-        chains[i].setAnimation(TANH, ofRandom(3.0,8.0), LOOP_BACK_AND_FORTH);
         
         chains[i].setInitialRotation(chains[i].rotAnimation.getCurrentValue());
         chains[i].setFinalRotation(ofRandom(chains[i].initialRotation - 50, chains[i].initialRotation + 50));
@@ -312,6 +315,7 @@ void ChainManager::triggerFloating(){
         chains[i].setFinalColor(ofColor(chains[i].initialColor,255));
         chains[i].setColorAnimationDuration(chains[i].posAnimation.getDuration());
         
+        chains[i].setAnimation(TANH, ofRandom(3.0,8.0), LOOP_BACK_AND_FORTH);
         
         chains[i].startAnimation();
     }
@@ -331,12 +335,12 @@ void ChainManager::triggerOutro(){
     cout << "Triggering OUTRO" << endl;
     
     
-    cout << "C: " << ofToString(chains[0].rotAnimation.getCurrentValue()) << endl;
+    cout << "C Rot: " << ofToString(chains[0].rotAnimation.getCurrentValue()) << endl;
+    cout << "C Pos: " << ofToString(chains[0].posAnimation.getCurrentPosition()) << endl;
     
     // CHAINS
     for (int i=0; i < chains.size(); i++) {
         
-        chains[i].setAnimation(EASE_IN, 3.0, PLAY_ONCE);
         chains[i].setInitialPosition(chains[i].posAnimation.getCurrentPosition());
         chains[i].setFinalPosition(ofVec3f(ofGetWindowWidth() * 0.5, ofGetWindowHeight() * 0.5, 0));
         
@@ -347,10 +351,13 @@ void ChainManager::triggerOutro(){
         chains[i].setInitialColor(ofColor(chains[i].finalColor,255));
         chains[i].setFinalColor(ofColor(0,0));
         
+        chains[i].setAnimation(EASE_IN, 3.0, PLAY_ONCE);
         chains[i].startAnimation();
     }
     
-    cout << "I: " << ofToString(chains[0].initialRotation) << endl;
+    cout << "I Rot: " << ofToString(chains[0].initialRotation) << endl;
+    cout << "I Pos: " << ofToString(chains[0].initialPosition) << endl;
+
     
     
     /*

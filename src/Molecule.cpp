@@ -28,6 +28,7 @@ void Molecule::render(){
     
     // DRAW LINES
     //glLineWidth(3);
+    ofSetCircleResolution(10);
     for (int i = 1; i < atoms.size(); i++) {
         if (visibleEdges[i - 1]) {
             ofLine(atoms[i], atoms[i-1]);
