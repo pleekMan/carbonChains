@@ -109,7 +109,7 @@ void Chain::render(){
         ofPushMatrix();
         
         //ofTranslate(ofVec3f(molecules[i].center.x, molecules[i].center.y, - (ofGetMouseY() - (ofGetWindowHeight() * 0.5))));
-        ofTranslate(ofVec3f(molecules[i].center.x, molecules[i].center.y, 0));
+        ofTranslate(ofVec3f(molecules[i].center.x - hRadius, molecules[i].center.y, 0));
         molecules[i].render();
         
         

@@ -10,8 +10,8 @@
 
 void ChainManager::setup(){
     
-    moleculeRadius = 30;
-    gridChainCount = 700;
+    moleculeRadius = 20;
+    gridChainCount = 1700;
     
     if(chainsXML.load("chainsFull.xml") ){
 		cout << "Chains data loaded!" << endl;
@@ -575,7 +575,7 @@ void ChainManager::createChainGrid(){
             }
             chainY -= newChain.getVerticalSeparation();
             actualRow++;
-        } else{
+        } else {
             chainX += (newChain.getHorizontalSeparation());
         }
         
